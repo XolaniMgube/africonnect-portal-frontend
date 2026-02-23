@@ -3,6 +3,7 @@
 import { ReactNode } from "react";
 import { useAuthStore } from "@/store/auth.store";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 export default function DashboardLayout({
     children,
@@ -23,15 +24,18 @@ export default function DashboardLayout({
                 <nav className="flex-1 p-4 space-y-2">
                     <div
                         className={`rounded px-3 py-2 cursor-pointer ${pathname === "/dashboard"
-                                ? "bg-[var(--color-primary)] text-black font-medium"
-                                : "hover:bg-[var(--color-sidebar-hover)]"
+                            ? "bg-[var(--color-primary)] text-black font-medium"
+                            : "hover:bg-[var(--color-sidebar-hover)]"
                             }`}
                     >
                         Dashboard
                     </div>
-                    <div className="rounded px-3 py-2 hover:bg-[var(--color-sidebar-hover)] cursor-pointer">
-                        Transactions
-                    </div>
+                    <Link
+                        href="/transactions/new"
+                        className="block rounded px-3 py-2 hover:bg-[var(--color-sidebar-hover)]"
+                    >
+                        New Transaction
+                    </Link>
                     <div className="rounded px-3 py-2 hover:bg-[var(--color-sidebar-hover)] cursor-pointer">
                         Settings
                     </div>
