@@ -1,14 +1,33 @@
 import { create } from "zustand";
-import { User } from "@/types/models";
+import { persist } from "zustand/middleware";
 
 interface AuthState {
-  user: User | null;
-  login: (user: User) => void;
+  user: { email: string } | null;
+  token: string | null;
+  login: (data: { email: string; token: string }) => void;
   logout: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  login: (user) => set({ user }),
-  logout: () => set({ user: null }),
-}));
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      user: null,
+      token: null,
+
+      login: ({ email, token }) =>
+        set({
+          user: { email },
+          token,
+        }),
+
+      logout: () =>
+        set({
+          user: null,
+          token: null,
+        }),
+    }),
+    {
+      name: "africonnect-auth",
+    }
+  )
+);

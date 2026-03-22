@@ -11,19 +11,46 @@ export default function LoginPage() {
   const router = useRouter();
 
   const login = useAuthStore((state) => state.login);
+  const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    const user = mockUsers.find((u) => u.email === email);
+  const handleLogin = async () => {
+    setError("");
 
-    if (!user) {
-      setError("User not found");
+    if (!email || !password) {
+      setError("Email and password are required");
       return;
     }
 
-    login(user);
-    router.push("/dashboard");
-  };
+    try {
+      const res = await fetch("http://localhost:5000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
+      if (!res.ok) {
+        throw new Error("Invalid credentials");
+      }
+
+      const data = await res.json();
+
+      login({
+        email,
+        token: data.token,
+      });
+
+      console.log("Logged in user:", { email, token: data.token });
+
+      router.push("/dashboard");
+    } catch (err) {
+      setError("Login failed. Check credentials.");
+    }
+  };
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
       <div className="w-[400px] rounded-lg bg-white p-8 shadow-md">
@@ -44,6 +71,14 @@ export default function LoginPage() {
             {error}
           </p>
         )}
+
+        <input
+          type="password"
+          placeholder="Enter password"
+          className="mb-4 w-full rounded border p-2"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
         <button
           onClick={handleLogin}

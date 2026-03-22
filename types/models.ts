@@ -5,6 +5,7 @@ export interface User {
   name: string;
   email: string;
   role: Role;
+  // token?: any;
 }
 
 export interface ServiceCategory {
@@ -30,10 +31,15 @@ export interface TransactionItem {
 
 export interface Transaction {
   id: string;
-  items: TransactionItem[];
+  items: {
+    serviceId: string;
+    quantity: number;
+    unitPrice: number;
+    total: number;
+  }[];
   grandTotal: number;
   paymentMethod: "cash" | "card";
-  status: "draft" | "completed";
+  status: "completed";
   createdBy: string;
   createdAt: string;
 }
