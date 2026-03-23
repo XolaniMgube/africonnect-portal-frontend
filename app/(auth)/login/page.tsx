@@ -2,16 +2,17 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { mockUsers } from "@/services/mockData";
 import { useAuthStore } from "@/store/auth.store";
+import { loginRequest } from "@/services/auth.service";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-  const router = useRouter();
-
-  const login = useAuthStore((state) => state.login);
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
+  const login = useAuthStore((state) => state.login);
 
   const handleLogin = async () => {
     setError("");
@@ -22,41 +23,30 @@ export default function LoginPage() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+      setLoading(true);
 
-      if (!res.ok) {
-        throw new Error("Invalid credentials");
-      }
-
-      const data = await res.json();
+      const data = await loginRequest(email, password);
 
       login({
         email,
         token: data.token,
       });
 
-      console.log("Logged in user:", { email, token: data.token });
-
       router.push("/dashboard");
     } catch (err) {
       setError("Login failed. Check credentials.");
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
       <div className="w-[400px] rounded-lg bg-white p-8 shadow-md">
-        <h1 className="mb-6 text-2xl font-semibold">
-          Africonnect Login
+        <h1 className="mb-6 text-2xl font-semibold text-[var(--color-sidebar)] text-center">
+          Africonnect Solutions Portal
         </h1>
+        <h3 className="mb-6 text-xl font-semibold text-center">Login</h3>
 
         <input
           type="email"
@@ -66,12 +56,6 @@ export default function LoginPage() {
           onChange={(e) => setEmail(e.target.value)}
         />
 
-        {error && (
-          <p className="mb-3 text-sm text-red-500">
-            {error}
-          </p>
-        )}
-
         <input
           type="password"
           placeholder="Enter password"
@@ -80,11 +64,18 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
 
+        {error && (
+          <p className="mb-3 text-sm text-red-500">
+            {error}
+          </p>
+        )}
+
         <button
           onClick={handleLogin}
-          className="w-full rounded bg-black py-2 text-white"
+          disabled={loading}
+          className="w-full rounded bg-[var(--color-primary)] py-2 text-black disabled:opacity-50"
         >
-          Login
+          {loading ? "Logging in..." : "Login"}
         </button>
       </div>
     </div>

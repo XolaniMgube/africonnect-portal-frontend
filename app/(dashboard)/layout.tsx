@@ -4,6 +4,8 @@ import { ReactNode } from "react";
 import { useAuthStore } from "@/store/auth.store";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { CircleUserRound, User } from "lucide-react";
+
 
 export default function DashboardLayout({
     children,
@@ -18,23 +20,30 @@ export default function DashboardLayout({
             {/* Sidebar */}
             <aside className="w-64 bg-[var(--color-sidebar)] text-white flex flex-col">
                 <div className="p-6 text-xl font-semibold border-b border-white/10">
-                    AFRICONNECT
+                    AFRICONNECT SOLUTIONS PORTAL
                 </div>
 
                 <nav className="flex-1 p-4 space-y-2">
-                    <div
-                        className={`rounded px-3 py-2 cursor-pointer ${pathname === "/dashboard"
-                            ? "bg-[var(--color-primary)] text-black font-medium"
-                            : "hover:bg-[var(--color-sidebar-hover)]"
-                            }`}
-                    >
-                        Dashboard
-                    </div>
+                    <Link href="/dashboard">
+                        <div
+                            className={`rounded px-3 py-2 cursor-pointer ${pathname === "/dashboard"
+                                ? "bg-[var(--color-primary)] text-black font-medium"
+                                : "hover:bg-[var(--color-sidebar-hover)]"
+                                }`}
+                        >
+                            Dashboard
+                        </div>
+                    </Link>
                     <Link
-                        href="/transactions/new"
-                        className="block rounded px-3 py-2 hover:bg-[var(--color-sidebar-hover)]"
+                        href="/sales"
                     >
-                        New Transaction
+                        <div
+                            className={`rounded px-3 py-2 cursor-pointer ${pathname === "/sales"
+                                ? "bg-[var(--color-primary)] text-black font-medium"
+                                : "hover:bg-[var(--color-sidebar-hover)]"
+                                }`}
+                        >Sales</div>
+
                     </Link>
                     <div className="rounded px-3 py-2 hover:bg-[var(--color-sidebar-hover)] cursor-pointer">
                         Settings
@@ -50,14 +59,18 @@ export default function DashboardLayout({
                         Dashboard
                     </div>
 
-                    <div className="text-sm text-[var(--color-text-muted)]">
-                        {user?.name}
+                    <div className="text-sm text-[var(--color-text-muted)] font-semibold flex items-center gap-2">
+                        {/* <User size={18} /> */}
+                        <CircleUserRound />
+                        {user?.email}
                     </div>
                 </header>
 
                 {/* Content */}
-                <main className="flex-1 p-6 overflow-auto">
-                    {children}
+                <main className="flex justify-center p-6 overflow-auto">
+                    <div className="w-full mx-30">
+                        {children}
+                    </div>
                 </main>
             </div>
         </div>

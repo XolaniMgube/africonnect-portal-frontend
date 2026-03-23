@@ -220,17 +220,18 @@
 import { useEffect, useState } from "react";
 import { getSales } from "@/services/sales.service";
 import Link from "next/link";
-import { createSale } from "@/services/sales.service";
+import { SalesTable } from "@/components/tables/sales-table";
 
 interface Sale {
     id: number;
+    name: string;
     employee_id: number;
     total_amount: string;
     payment_method: string;
     created_at: string;
 }
 
-export default function TransactionsPage() {
+export default function Sales() {
     const [sales, setSales] = useState<Sale[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
@@ -251,48 +252,44 @@ export default function TransactionsPage() {
     }, []);
 
     return (
-        <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">
-                    Transactions
-                </h2>
-
+        <div className="container mx-auto">
+            <div className="mb-16">
+                <h1 className="text-3xl font-bold">Sales - View All Sales</h1>
+            </div>
+            <div className="mb-8">
                 <Link
-                    href="/transactions/new"
-                    className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] px-4 py-2 rounded text-black font-medium"
+                    href="/sales/new"
+                    className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] px-6 py-3 rounded text-black font-medium"
                 >
-                    + New Sale
+                    Add New Sale +
                 </Link>
             </div>
-            {loading && <p>Loading...</p>}
-            {error && <p className="text-red-500">{error}</p>}
 
-            {!loading && sales.length === 0 && (
-                <p className="text-gray-500">No transactions found.</p>
-            )}
+            <div className="bg-white rounded-lg shadow-sm p-6 mx">
 
-            {sales.map((sale) => (
-                <div
-                    key={sale.id}
-                    className="border rounded p-4 mb-3 flex justify-between"
-                >
-                    <div>
-                        <p className="font-medium">
-                            Sale #{sale.id}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                            {new Date(sale.created_at).toLocaleString()}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                            {sale.payment_method}
-                        </p>
-                    </div>
+                <div className="flex justify-between items-center mb-4">
+                    {/* <h2 className="text-xl font-semibold">
+                        All Transactions
+                    </h2> */}
 
-                    <div className="font-semibold text-lg">
-                        R{sale.total_amount}
-                    </div>
+
                 </div>
-            ))}
+
+                {loading && <p>Loading...</p>}
+                {error && <p className="text-red-500">{error}</p>}
+
+                {!loading && sales.length === 0 && (
+                    <p className="text-gray-500">
+                        No transactions found.
+                    </p>
+                )}
+
+                {!loading && sales.length > 0 && (
+                    <SalesTable data={sales} />
+                )}
+            </div>
         </div>
+
+
     );
 }
