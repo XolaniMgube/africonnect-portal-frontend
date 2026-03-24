@@ -1,4 +1,5 @@
-const BASE_URL = "http://localhost:5000";
+// const BASE_URL = "http://localhost:5000";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const loginRequest = async (email: string, password: string) => {
   const res = await fetch(`${BASE_URL}/auth/login`, {

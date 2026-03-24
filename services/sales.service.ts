@@ -3,7 +3,7 @@ import { useAuthStore } from "@/store/auth.store";
 export const getSales = async () => {
   const token = useAuthStore.getState().token;
 
-  const res = await fetch("http://localhost:5000/sales", {
+  const res = await fetch("https://internet-cafe-pos-1.onrender.com/sales", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -22,7 +22,7 @@ export const createSale = async (payload: {
 }) => {
   const token = useAuthStore.getState().token;
 
-  const res = await fetch("http://localhost:5000/sales", {
+  const res = await fetch("https://internet-cafe-pos-1.onrender.com/sales", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
