@@ -48,35 +48,42 @@ export default function LoginPage() {
         </h1>
         <h3 className="mb-6 text-xl font-semibold text-center">Login</h3>
 
-        <input
-          type="email"
-          placeholder="Enter email"
-          className="mb-4 w-full rounded border p-2"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <input
-          type="password"
-          placeholder="Enter password"
-          className="mb-4 w-full rounded border p-2"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        {error && (
-          <p className="mb-3 text-sm text-red-500">
-            {error}
-          </p>
-        )}
-
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          className="w-full rounded bg-[var(--color-primary)] py-2 text-black disabled:opacity-50"
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleLogin();
+          }}
         >
-          {loading ? "Logging in..." : "Login"}
-        </button>
+          <input
+            type="email"
+            placeholder="Enter email"
+            className="mb-4 w-full rounded border p-2"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <input
+            type="password"
+            placeholder="Enter password"
+            className="mb-4 w-full rounded border p-2"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          {error && (
+            <p className="mb-3 text-sm text-red-500">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded bg-[var(--color-primary)] py-2 text-black disabled:opacity-50"
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
       </div>
     </div>
   );
