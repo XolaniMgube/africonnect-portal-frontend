@@ -176,10 +176,14 @@ export default function Sales() {
     }, [selectedDate]);
 
     return (
-        <div className="container mx-auto">
-            <div className="mb-10">
-                <h1 className="text-3xl text-gray-500 font-bold">Sales</h1>
-                <p className="font-semibold text-gray-500">Sales Information</p>
+        <div className="container mx-auto space-y-8">
+            <div>
+                <h1 className="text-3xl font-bold text-gray-800">
+                    Sales
+                </h1>
+                <p className="text-gray-500">
+                    Business sales overview
+                </p>
             </div>
 
             <div className="mb-8 flex justify-between items-center">

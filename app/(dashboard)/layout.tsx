@@ -33,13 +33,13 @@ export default function DashboardLayout({
             icon: ShoppingCart,
         },
         {
-            label: "Transactions",
-            href: "/transactions",
+            label: "Reports",
+            href: "/reports",
             icon: Receipt,
         },
         {
-            label: "Settings",
-            href: "/settings",
+            label: "Team",
+            href: "/team",
             icon: Settings,
         },
         {
@@ -81,7 +81,7 @@ export default function DashboardLayout({
             {/* Main */}
             <div className="flex flex-1 flex-col">
                 {/* Top Bar */}
-                <header className="flex h-20 items-center justify-between bg-white px-6 shadow-sm">
+                <header className="flex h-20 flex-shrink-0 items-center justify-between bg-white px-6 shadow-sm">
                     <div className="flex items-center gap-3 ms-10">
                         <div className="font-bold text-[var(--color-sidebar)] text-lg ">
                             AFRICONNECT SOLUTIONS PORTAL
