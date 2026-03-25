@@ -32,7 +32,7 @@ export default function LoginPage() {
         token: data.token,
       });
 
-      router.push("/sales");
+      router.push("/dashboard");
     } catch (err) {
       setError("Login failed. Check credentials.");
     } finally {
