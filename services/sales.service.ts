@@ -40,6 +40,25 @@ export const createSale = async (payload: {
   return res.json();
 };
 
+export const getSalesByDateRange = async (startDate: string, endDate: string) => {
+  const token = useAuthStore.getState().token;
+
+  const res = await fetch(
+    `${BASE_URL}/sales/date-range?startDate=${startDate}&endDate=${endDate}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch sales by date range");
+  }
+
+  return res.json();
+};
+
 export const getSalesByDate = async (date: string) => {
   const token = useAuthStore.getState().token;
 
