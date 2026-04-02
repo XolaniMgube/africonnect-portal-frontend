@@ -43,7 +43,12 @@ const formatCurrency = (value: number) =>
     minimumFractionDigits: 2,
   }).format(value);
 
-const toDateString = (d: Date) => d.toISOString().split("T")[0];
+const toDateString = (d: Date) => {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+};
 const today = () => toDateString(new Date());
 
 function getPresetRange(period: "week" | "month"): { startDate: string; endDate: string } {
@@ -108,10 +113,10 @@ export default function ReportsPage() {
         setLoading(true);
         setError("");
         const data = await getSalesByDateRange(activeRange.startDate, activeRange.endDate);
-        setSales(data);
+        setSales(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
-        setError("Failed to load report data");
+        setError(err instanceof Error ? err.message : "Failed to load report data");
       } finally {
         setLoading(false);
       }

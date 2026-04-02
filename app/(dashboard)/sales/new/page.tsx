@@ -1,11 +1,147 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, CreditCard, Plus, Trash2 } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, CreditCard, Plus, Search, Trash2, X } from "lucide-react";
 import { getServices } from "@/services/services.service";
 import { createSale } from "@/services/sales.service";
 import { getEmployees } from "@/services/auth.service";
+
+interface SearchableSelectOption {
+  value: string;
+  label: string;
+  sublabel?: string;
+  badge?: string;
+}
+
+function SearchableSelect({
+  options,
+  value,
+  onChange,
+  placeholder = "Select...",
+  searchPlaceholder = "Search...",
+  disabled = false,
+}: {
+  options: SearchableSelectOption[];
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  searchPlaceholder?: string;
+  disabled?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const ref = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  const selected = options.find((o) => o.value === value);
+  const filtered = options.filter((o) =>
+    o.label.toLowerCase().includes(query.toLowerCase())
+  );
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+        setQuery("");
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  useEffect(() => {
+    if (open) setTimeout(() => searchRef.current?.focus(), 50);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => { setOpen((o) => !o); setQuery(""); }}
+        className={`flex h-12 w-full items-center justify-between gap-2 rounded-2xl border px-4 text-sm transition outline-none
+          ${disabled ? "cursor-not-allowed bg-gray-50 text-gray-400 border-gray-200" : "bg-white text-gray-900 border-gray-200 hover:border-[#a7cb57] focus:border-(--color-primary) focus:ring-4 focus:ring-[#a7cb57]/20"}
+          ${open ? "border-(--color-primary) ring-4 ring-[#a7cb57]/20" : ""}`}
+      >
+        <span className={selected ? "text-gray-900" : "text-gray-400"}>
+          {selected ? selected.label : placeholder}
+        </span>
+        <span className="flex shrink-0 items-center gap-1">
+          {selected && (
+            <span
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && (e.stopPropagation(), onChange(""), setOpen(false))}
+              onClick={(e) => { e.stopPropagation(); onChange(""); setOpen(false); }}
+              className="flex h-5 w-5 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+            >
+              <X size={12} />
+            </span>
+          )}
+          <ChevronDown size={16} className={`text-gray-400 transition-transform ${open ? "rotate-180" : ""}`} />
+        </span>
+      </button>
+
+      {open && (
+        <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_16px_48px_rgba(15,23,42,0.12)]">
+          <div className="border-b border-gray-100 p-2">
+            <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-3 py-2">
+              <Search size={14} className="shrink-0 text-gray-400" />
+              <input
+                ref={searchRef}
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={searchPlaceholder}
+                className="w-full bg-transparent text-sm text-gray-700 outline-none placeholder:text-gray-400"
+              />
+              {query && (
+                <button onClick={() => setQuery("")} className="shrink-0 text-gray-400 hover:text-gray-600">
+                  <X size={12} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          <ul className="max-h-56 overflow-y-auto py-1">
+            {filtered.length === 0 ? (
+              <li className="px-4 py-3 text-sm text-gray-400">No results found</li>
+            ) : (
+              filtered.map((option) => (
+                <li key={option.value}>
+                  <button
+                    type="button"
+                    onClick={() => { onChange(option.value); setOpen(false); setQuery(""); }}
+                    className={`flex w-full items-center justify-between gap-3 px-4 py-2.5 text-left text-sm transition hover:bg-[#f4f9ec]
+                      ${value === option.value ? "bg-[#f4f9ec]" : ""}`}
+                  >
+                    <div>
+                      <p className="font-medium text-gray-900">{option.label}</p>
+                      {option.sublabel && (
+                        <p className="text-xs text-gray-400">{option.sublabel}</p>
+                      )}
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      {option.badge && (
+                        <span className="rounded-full bg-[#eff6e4] px-2 py-0.5 text-xs font-semibold text-[#35512a]">
+                          {option.badge}
+                        </span>
+                      )}
+                      {value === option.value && (
+                        <Check size={14} className="text-[var(--color-primary)]" />
+                      )}
+                    </div>
+                  </button>
+                </li>
+              ))
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface Service {
   id: number;
@@ -16,6 +152,7 @@ interface Service {
 
 interface Item {
   service: Service;
+  customName?: string;
   quantity: number;
   unitPrice: number;
 }
@@ -31,6 +168,7 @@ export default function CreateNewSalePage() {
   const [services, setServices] = useState<Service[]>([]);
   const [employees, setEmployees] = useState<{ id: number; name: string }[]>([]);
   const [selectedServiceId, setSelectedServiceId] = useState("");
+  const [customServiceName, setCustomServiceName] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [unitPrice, setUnitPrice] = useState("");
   const [items, setItems] = useState<Item[]>([]);
@@ -64,16 +202,18 @@ export default function CreateNewSalePage() {
   }, []);
 
   const selectedService = services.find(
-    (service) => service.id === Number(selectedServiceId)
+    (service) => String(service.id) === selectedServiceId
   );
 
   useEffect(() => {
     if (!selectedService) {
       setUnitPrice("");
+      setCustomServiceName("");
       return;
     }
 
     setUnitPrice(selectedService.price);
+    setCustomServiceName("");
   }, [selectedService]);
 
   const parsedUnitPrice = Number(unitPrice) || 0;
@@ -81,11 +221,13 @@ export default function CreateNewSalePage() {
 
   const addItem = () => {
     if (!selectedService || quantity < 1) return;
+    if (selectedService.is_custom && !customServiceName.trim()) return;
 
     setItems((prev) => [
       ...prev,
       {
         service: selectedService,
+        customName: selectedService.is_custom ? customServiceName.trim() : undefined,
         quantity,
         unitPrice: parsedUnitPrice,
       },
@@ -94,6 +236,7 @@ export default function CreateNewSalePage() {
     setSelectedServiceId("");
     setUnitPrice("");
     setQuantity(1);
+    setCustomServiceName("");
   };
 
   const removeItem = (index: number) => {
@@ -179,23 +322,36 @@ export default function CreateNewSalePage() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-gray-700">
-                  Service
-                </span>
-                <select
-                  className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm text-gray-900 outline-none transition focus:border-(--color-primary) focus:ring-4 focus:ring-[#a7cb57]/20"
+              <div className="space-y-2">
+                <span className="text-sm font-medium text-gray-700">Service</span>
+                <SearchableSelect
+                  placeholder="Select service"
+                  searchPlaceholder="Search services..."
                   value={selectedServiceId}
-                  onChange={(e) => setSelectedServiceId(e.target.value)}
-                >
-                  <option value="">Select service</option>
-                  {services.map((service) => (
-                    <option key={service.id} value={service.id}>
-                      {service.name} ({formatCurrency(Number(service.price))})
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  onChange={setSelectedServiceId}
+                  options={services.map((s) => ({
+                    value: String(s.id),
+                    label: s.name,
+                    sublabel: s.is_custom ? "Custom price" : undefined,
+                    badge: formatCurrency(Number(s.price)),
+                  }))}
+                />
+              </div>
+
+              {selectedService?.is_custom && (
+                <label className="space-y-2 md:col-span-2">
+                  <span className="text-sm font-medium text-gray-700">
+                    Service description <span className="text-red-400">*</span>
+                  </span>
+                  <input
+                    type="text"
+                    className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm text-gray-900 outline-none transition focus:border-(--color-primary) focus:ring-4 focus:ring-[#a7cb57]/20"
+                    value={customServiceName}
+                    onChange={(e) => setCustomServiceName(e.target.value)}
+                    placeholder="e.g. Airport transfer, Deep tissue massage..."
+                  />
+                </label>
+              )}
 
               <label className="space-y-2">
                 <span className="text-sm font-medium text-gray-700">
@@ -256,7 +412,7 @@ export default function CreateNewSalePage() {
 
             <button
               onClick={addItem}
-              disabled={!selectedServiceId}
+              disabled={!selectedServiceId || (!!selectedService?.is_custom && !customServiceName.trim())}
               className="mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[var(--color-primary)] px-6 font-semibold text-gray-900 transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Plus size={18} />
@@ -290,12 +446,11 @@ export default function CreateNewSalePage() {
                     >
                       <div>
                         <p className="font-semibold text-gray-900">
-                          {item.service.name}
+                          {item.customName ?? item.service.name}
                         </p>
-                        <p className="text-sm text-gray-500">
-                          Default {formatCurrency(Number(item.service.price))}
-                          {item.service.is_custom ? " • Custom service" : ""}
-                        </p>
+                        {item.customName && (
+                          <p className="text-xs text-gray-400">{item.service.name}</p>
+                        )}
                       </div>
                       <div className="text-sm text-gray-700">
                         Qty {item.quantity}
@@ -337,23 +492,19 @@ export default function CreateNewSalePage() {
               </div>
 
               <div className="space-y-4">
-                <label className="block space-y-2">
-                  <span className="text-sm font-medium text-gray-700">
-                    Employee
-                  </span>
-                  <select
-                    className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm text-gray-900 outline-none transition focus:border-(--color-primary) focus:ring-4 focus:ring-[#a7cb57]/20"
+                <div className="space-y-2">
+                  <span className="text-sm font-medium text-gray-700">Employee</span>
+                  <SearchableSelect
+                    placeholder="Select employee"
+                    searchPlaceholder="Search employees..."
                     value={employeeName}
-                    onChange={(e) => setEmployeeName(e.target.value)}
-                  >
-                    <option value="">Select employee</option>
-                    {employees.map((emp) => (
-                      <option key={emp.id} value={emp.name}>
-                        {emp.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                    onChange={setEmployeeName}
+                    options={employees.map((emp) => ({
+                      value: emp.name,
+                      label: emp.name,
+                    }))}
+                  />
+                </div>
 
                 <label className="block space-y-2">
                   <span className="text-sm font-medium text-gray-700">

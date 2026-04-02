@@ -54,7 +54,24 @@ export const getSalesByDateRange = async (startDate: string, endDate: string) =>
   );
 
   if (!res.ok) {
-    throw new Error("Failed to fetch sales by date range");
+    const body = await res.text().catch(() => "");
+    throw new Error(`${res.status} – ${body || "Failed to fetch sales by date range"}`);
+  }
+
+  return res.json();
+};
+
+export const getSaleById = async (id: number) => {
+  const token = useAuthStore.getState().token;
+
+  const res = await fetch(`${BASE_URL}/sales/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch sale");
   }
 
   return res.json();
