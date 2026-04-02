@@ -20,7 +20,8 @@ export const getSales = async () => {
 
 export const createSale = async (payload: {
   payment_method: string;
-  items: { service_id: number; quantity: number }[];
+  employee_name: string;
+  items: { service_id: number; quantity: number; price: number }[];
 }) => {
   const token = useAuthStore.getState().token;
 

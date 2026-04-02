@@ -268,7 +268,7 @@ export default function DashboardPage() {
                     tickFormatter={(value) => `R${value}`}
                   />
                   <Tooltip
-                    formatter={(value: number) => formatCurrency(value)}
+                    formatter={(value) => formatCurrency(Number(value))}
                     contentStyle={{
                       borderRadius: "16px",
                       borderColor: "#e4ebdb",

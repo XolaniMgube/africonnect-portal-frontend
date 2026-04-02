@@ -26,6 +26,6 @@ export const exportSalesToExcel = (sales: Sale[]) => {
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Sales");
 
-  // Download file
+  // Download file 
   XLSX.writeFile(workbook, "sales.xlsx");
 };

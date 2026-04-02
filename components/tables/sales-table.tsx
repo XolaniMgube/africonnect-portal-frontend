@@ -15,6 +15,7 @@ interface Sale {
   id: number;
   name: string;
   employee_id: number;
+  employee_name: string;
   total_amount: string;
   payment_method: string;
   created_at: string;
@@ -48,17 +49,12 @@ export function SalesTable({ data, search }: Props) {
       ),
     },
     {
-      accessorKey: "name",
-      header: "Customer",
+      accessorKey: "employee_name",
+      header: "Employee",
       cell: ({ row }) => (
-        <div>
-          <p className="font-medium text-gray-900">
-            {row.original.name || "Walk-in customer"}
-          </p>
-          <p className="text-xs text-gray-500">
-            Employee #{row.original.employee_id}
-          </p>
-        </div>
+        <p className="font-medium text-gray-900">
+          {row.original.employee_name || `Employee #${row.original.employee_id}`}
+        </p>
       ),
     },
     {
