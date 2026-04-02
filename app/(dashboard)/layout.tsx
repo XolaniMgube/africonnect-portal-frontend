@@ -64,20 +64,20 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="flex min-h-screen bg-[linear-gradient(180deg,#f4f8ef_0%,#ffffff_35%)]">
-      <aside className="hidden w-80 shrink-0 border-r border-white/10 bg-[linear-gradient(180deg,#173523_0%,#1d402b_36%,#214932_100%)] text-white lg:flex lg:flex-col">
+    <div className="flex h-screen overflow-hidden bg-[linear-gradient(180deg,#f4f8ef_0%,#ffffff_35%)]">
+      <aside className="hidden w-80 shrink-0 border-r border-white/10 bg-[linear-gradient(180deg,#173523_0%,#1d402b_36%,#214932_100%)] text-white lg:flex lg:flex-col lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
         <div className="border-b border-white/10 px-6 py-6">
           <div className="rounded-[28px] border border-white/10 bg-white/5 p-5 shadow-[0_20px_60px_rgba(0,0,0,0.18)] backdrop-blur-sm">
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#d8ebb7]">
               Africonnect
             </p>
             <h1 className="mt-3 text-2xl font-semibold leading-tight">
-              Solutions portal for your day-to-day operations
+              POS Dashboard
             </h1>
-            <p className="mt-3 text-sm leading-6 text-white/70">
+            {/* <p className="mt-3 text-sm leading-6 text-white/70">
               Track sales, manage the team, and move through work with a
               cleaner command center.
-            </p>
+            </p> */}
           </div>
         </div>
 
@@ -161,7 +161,7 @@ export default function DashboardLayout({
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto">
         <header className="sticky top-0 z-10 flex h-20 items-center justify-between border-b border-[#e7eedc] bg-white/90 px-6 shadow-sm backdrop-blur-md md:px-8">
           <div className="flex items-center gap-4">
             <div className="hidden rounded-2xl bg-[linear-gradient(135deg,#183824_0%,#2f5f42_100%)] px-4 py-2 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(24,56,36,0.15)] sm:block">

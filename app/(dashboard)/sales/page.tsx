@@ -2,14 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Calendar } from "primereact/calendar";
 import { InputText } from "primereact/inputtext";
-import {
-  ArrowRight,
-  Calendar as CalendarIcon,
-  Download,
-  Search,
-} from "lucide-react";
+import { ArrowRight, Download, Search } from "lucide-react";
 import { getSalesByDate } from "@/services/sales.service";
 import { SalesTable } from "@/components/tables/sales-table";
 import { exportSalesToExcel } from "@/services/export.service";
@@ -18,6 +12,7 @@ interface Sale {
   id: number;
   name: string;
   employee_id: number;
+  employee_name: string;
   total_amount: string;
   payment_method: string;
   created_at: string;
@@ -30,15 +25,20 @@ export default function Sales() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [search, setSearch] = useState("");
 
+  const toLocalDateString = (date: Date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  };
+
   useEffect(() => {
     const fetchSales = async () => {
       try {
         setLoading(true);
         setError("");
 
-        const date = selectedDate
-          ? selectedDate.toISOString().split("T")[0]
-          : "";
+        const date = selectedDate ? toLocalDateString(selectedDate) : "";
 
         const data = await getSalesByDate(date);
         setSales(data);
@@ -54,25 +54,24 @@ export default function Sales() {
   }, [selectedDate]);
 
   const formattedDate = selectedDate
-    ? selectedDate.toISOString().split("T")[0]
+    ? toLocalDateString(selectedDate)
     : "All dates";
 
   return (
     <div className="space-y-8">
       <section className="rounded-[30px] border border-[#dce8cf] bg-[linear-gradient(135deg,#183f2b_0%,#275338_58%,#a7cb57_140%)] px-7 py-8 text-white shadow-[0_28px_90px_rgba(24,63,43,0.16)] md:px-9 md:py-10">
         <div className="flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
-          <div className="max-w-3xl space-y-4">
+          <div className="max-w-3xl">
             <span className="inline-flex w-fit rounded-full border border-white/20 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
               Sales Overview
             </span>
-            <div className="space-y-3">
-              <h1 className="text-4xl font-bold tracking-tight">
+            <div className="">
+              {/* <h1 className="text-4xl font-bold tracking-tight">
                 See today&apos;s transactions with more clarity
-              </h1>
-              <p className="max-w-2xl text-sm leading-6 text-white/80 md:text-base">
-                Review daily performance, compare payment methods, and jump
-                straight into new sales from one refined workspace.
-              </p>
+              </h1> */}
+              {/* <p className="max-w-2xl text-sm leading-6 text-white/80 md:text-base">
+                See today&apos;s transactions with more clarity
+              </p> */}
             </div>
           </div>
 
@@ -114,19 +113,21 @@ export default function Sales() {
         </div>
 
         <div className="mt-8 grid gap-4 xl:grid-cols-[220px_minmax(0,1fr)]">
-          <div className="relative">
-            <CalendarIcon
-              size={18}
-              className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
-            />
-            <Calendar
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.value as Date)}
-              dateFormat="yy-mm-dd"
-              placeholder="Select date"
-              className="w-full"
-              inputClassName="h-12 w-full rounded-2xl border border-gray-200 pl-4 pr-11 text-sm text-gray-700 focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[#a7cb57]/20"
-              panelClassName="rounded-2xl border border-gray-200 shadow-xl"
+          <div>
+            <input
+              type="date"
+              value={selectedDate ? toLocalDateString(selectedDate) : ""}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                const val = e.target.value;
+                if (val) {
+                  const [y, m, d] = val.split("-").map(Number);
+                  setSelectedDate(new Date(y, m - 1, d));
+                } else {
+                  setSelectedDate(null);
+                }
+                e.target.blur();
+              }}
+              className="h-12 w-full rounded-2xl border border-gray-200 px-4 text-sm text-gray-700 focus:border-(--color-primary) focus:outline-none focus:ring-4 focus:ring-[#a7cb57]/20"
             />
           </div>
 
@@ -139,7 +140,8 @@ export default function Sales() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by sale ID, name, payment method, or date..."
-              className="h-12 w-full rounded-2xl border border-gray-200 pl-11 pr-4 text-sm text-gray-700 focus:ring-0"
+              className="h-12 w-full rounded-2xl border border-gray-200 text-sm text-gray-700 focus:ring-0"
+              style={{ paddingLeft: "2.5rem", paddingRight: "1rem" }}
             />
           </div>
         </div>

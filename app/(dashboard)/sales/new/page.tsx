@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, CreditCard, Plus, Trash2 } from "lucide-react";
 import { getServices } from "@/services/services.service";
 import { createSale } from "@/services/sales.service";
+import { getEmployees } from "@/services/auth.service";
 
 interface Service {
   id: number;
@@ -28,11 +29,13 @@ const formatCurrency = (value: number) =>
 
 export default function CreateNewSalePage() {
   const [services, setServices] = useState<Service[]>([]);
+  const [employees, setEmployees] = useState<{ id: number; name: string }[]>([]);
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [unitPrice, setUnitPrice] = useState("");
   const [items, setItems] = useState<Item[]>([]);
   const [paymentMethod, setPaymentMethod] = useState("Cash");
+  const [employeeName, setEmployeeName] = useState("");
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
@@ -47,7 +50,17 @@ export default function CreateNewSalePage() {
       }
     };
 
+    const fetchEmployees = async () => {
+      try {
+        const data = await getEmployees();
+        setEmployees(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
     fetchServices();
+    fetchEmployees();
   }, []);
 
   const selectedService = services.find(
@@ -94,16 +107,18 @@ export default function CreateNewSalePage() {
   );
 
   const handleSubmit = async () => {
-    if (items.length === 0) return;
+    if (items.length === 0 || !employeeName.trim()) return;
 
     try {
       setLoading(true);
 
       await createSale({
         payment_method: paymentMethod,
+        employee_name: employeeName,
         items: items.map((item) => ({
           service_id: item.service.id,
           quantity: item.quantity,
+          price: item.unitPrice,
         })),
       });
 
@@ -121,9 +136,9 @@ export default function CreateNewSalePage() {
       <div className="mx-auto max-w-6xl space-y-8">
         <div className="flex flex-col gap-3 rounded-[28px] border border-[#dce8cf] bg-[linear-gradient(135deg,#183f2b_0%,#275338_55%,#a7cb57_140%)] px-8 py-10 text-white shadow-[0_24px_80px_rgba(24,63,43,0.18)]">
           <span className="w-fit rounded-full border border-white/20 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
-            Sales
+            New Sale
           </span>
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          {/* <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="max-w-2xl space-y-3">
               <h1 className="text-4xl font-bold tracking-tight">
                 Create a polished new sale in a few clicks
@@ -146,7 +161,7 @@ export default function CreateNewSalePage() {
                 </p>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[1.35fr_0.9fr]">
@@ -169,7 +184,7 @@ export default function CreateNewSalePage() {
                   Service
                 </span>
                 <select
-                  className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm text-gray-900 outline-none transition focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[#a7cb57]/20"
+                  className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm text-gray-900 outline-none transition focus:border-(--color-primary) focus:ring-4 focus:ring-[#a7cb57]/20"
                   value={selectedServiceId}
                   onChange={(e) => setSelectedServiceId(e.target.value)}
                 >
@@ -189,7 +204,7 @@ export default function CreateNewSalePage() {
                 <input
                   type="number"
                   min={1}
-                  className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm text-gray-900 outline-none transition focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[#a7cb57]/20 disabled:bg-gray-50"
+                  className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm text-gray-900 outline-none transition focus:border-(--color-primary) focus:ring-4 focus:ring-[#a7cb57]/20 disabled:bg-gray-50"
                   value={quantity}
                   onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
                   disabled={!selectedServiceId}
@@ -208,7 +223,7 @@ export default function CreateNewSalePage() {
                     type="number"
                     min={0}
                     step="0.01"
-                    className="h-12 w-full rounded-2xl border border-gray-200 bg-white pl-10 pr-4 text-sm text-gray-900 outline-none transition focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[#a7cb57]/20 disabled:bg-gray-50"
+                    className="h-12 w-full rounded-2xl border border-gray-200 bg-white pl-10 pr-4 text-sm text-gray-900 outline-none transition focus:border-(--color-primary) focus:ring-4 focus:ring-[#a7cb57]/20 disabled:bg-gray-50"
                     value={unitPrice}
                     onChange={(e) => setUnitPrice(e.target.value)}
                     disabled={!selectedServiceId}
@@ -321,19 +336,39 @@ export default function CreateNewSalePage() {
                 </div>
               </div>
 
-              <label className="space-y-2">
-                <span className="text-sm font-medium text-gray-700">
-                  Payment method
-                </span>
-                <select
-                  className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm text-gray-900 outline-none transition focus:border-[var(--color-primary)] focus:ring-4 focus:ring-[#a7cb57]/20"
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                >
-                  <option value="Cash">Cash</option>
-                  <option value="Card">Card</option>
-                </select>
-              </label>
+              <div className="space-y-4">
+                <label className="block space-y-2">
+                  <span className="text-sm font-medium text-gray-700">
+                    Employee
+                  </span>
+                  <select
+                    className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm text-gray-900 outline-none transition focus:border-(--color-primary) focus:ring-4 focus:ring-[#a7cb57]/20"
+                    value={employeeName}
+                    onChange={(e) => setEmployeeName(e.target.value)}
+                  >
+                    <option value="">Select employee</option>
+                    {employees.map((emp) => (
+                      <option key={emp.id} value={emp.name}>
+                        {emp.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="block space-y-2">
+                  <span className="text-sm font-medium text-gray-700">
+                    Payment method
+                  </span>
+                  <select
+                    className="h-12 w-full rounded-2xl border border-gray-200 bg-white px-4 text-sm text-gray-900 outline-none transition focus:border-(--color-primary) focus:ring-4 focus:ring-[#a7cb57]/20"
+                    value={paymentMethod}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  >
+                    <option value="Cash">Cash</option>
+                    <option value="Card">Card</option>
+                  </select>
+                </label>
+              </div>
             </section>
 
             <section className="rounded-[28px] border border-[#e4ebdb] bg-[#fcfdf9] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.05)]">
@@ -363,7 +398,7 @@ export default function CreateNewSalePage() {
 
               <button
                 onClick={handleSubmit}
-                disabled={loading || items.length === 0}
+                disabled={loading || items.length === 0 || !employeeName.trim()}
                 className="mt-6 inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[var(--color-sidebar)] px-5 font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loading ? "Creating..." : "Complete sale"}

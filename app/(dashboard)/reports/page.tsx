@@ -160,7 +160,7 @@ export default function ReportsPage() {
             <span className="inline-flex w-fit rounded-full border border-white/20 bg-white/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-white/80">
               Reports
             </span>
-            <div className="space-y-3">
+            {/* <div className="space-y-3">
               <h1 className="text-4xl font-bold tracking-tight">
                 Understand performance over time
               </h1>
@@ -168,10 +168,10 @@ export default function ReportsPage() {
                 Select a preset period or pick a custom date range to review revenue,
                 payment trends, and transaction history.
               </p>
-            </div>
+            </div> */}
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3 xl:min-w-[500px]">
+          {/* <div className="grid gap-3 sm:grid-cols-3 xl:min-w-[500px]">
             <div className="rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
               <p className="text-sm text-white/70">Period revenue</p>
               <p className="mt-2 text-2xl font-semibold">
@@ -190,7 +190,7 @@ export default function ReportsPage() {
                 {loading ? "—" : formatCurrency(metrics.average)}
               </p>
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 
@@ -420,7 +420,7 @@ export default function ReportsPage() {
       </section>
 
       {/* Transactions table */}
-      <section className="rounded-[30px] border border-[#e4ebdb] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.06)] md:p-8">
+      {/* <section className="rounded-[30px] border border-[#e4ebdb] bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,0.06)] md:p-8">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)]">
@@ -465,7 +465,7 @@ export default function ReportsPage() {
         {!loading && !error && sales.length > 0 && (
           <SalesTable data={sales} search={search} />
         )}
-      </section>
+      </section> */}
     </div>
   );
 }
