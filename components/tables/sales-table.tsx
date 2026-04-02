@@ -9,6 +9,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight, ExternalLink, Trash } from "lucide-react";
 
 interface Sale {
@@ -87,14 +88,15 @@ export function SalesTable({ data, search }: Props) {
     {
       accessorKey: "actions",
       header: () => <div className="text-right">Actions</div>,
-      cell: () => (
+      cell: ({ row }) => (
         <div className="flex justify-end gap-2">
-          <button
+          <Link
+            href={`/sales/${row.original.id}`}
             className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-blue-100 text-blue-500 transition hover:bg-blue-50"
             aria-label="View sale"
           >
             <ExternalLink size={16} />
-          </button>
+          </Link>
           <button
             className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-red-100 text-red-500 transition hover:bg-red-50"
             aria-label="Delete sale"
